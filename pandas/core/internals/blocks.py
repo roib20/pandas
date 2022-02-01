@@ -692,13 +692,14 @@ class Block(PandasObject):
 
         elif self._can_hold_element(value):
             blk = self if inplace else self.copy()
+            blk = blk.to_native_types(value)
             putmask_inplace(blk.values, mask, value)
-            if not (self.is_object and value is None):
+            if blk.is_object and value is None:
                 # if the user *explicitly* gave None, we keep None, otherwise
                 #  may downcast to NaN
-                blocks = blk.convert(numeric=False, copy=False)
-            else:
                 blocks = [blk]
+            else:
+                blocks = blk.convert(numeric=False, copy=False)
             return blocks
 
         elif self.ndim == 1 or self.shape[0] == 1:
